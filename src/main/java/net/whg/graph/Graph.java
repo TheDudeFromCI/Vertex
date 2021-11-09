@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.whg.solver.Environment;
 import net.whg.util.SafeArrayList;
 
 public class Graph {
@@ -19,8 +18,8 @@ public class Graph {
             throw new IllegalArgumentException("The provided node type is not an output node!");
 
         this.name = name;
-        connections = new SafeArrayList<Connection>(0);
-        nodes = new SafeArrayList<Node>(2);
+        connections = new SafeArrayList<>(0);
+        nodes = new SafeArrayList<>(2);
 
         nodes.add(new Node(outputNodeType));
         nodes.add(new Node(inputNodeType));
@@ -28,8 +27,8 @@ public class Graph {
 
     public Graph(Graph parent) {
         this.name = parent.name;
-        connections = new SafeArrayList<Connection>(parent.connections.size() + 1);
-        nodes = new SafeArrayList<Node>(parent.nodes.size() + 1);
+        connections = new SafeArrayList<>(parent.connections.size() + 1);
+        nodes = new SafeArrayList<>(parent.nodes.size() + 1);
 
         for (var node : parent.nodes)
             nodes.add(new Node(node.type()));
@@ -60,7 +59,7 @@ public class Graph {
         return connections.asReadOnly();
     }
 
-    public void getChildGraphs(List<Graph> graphs, Environment env) {
+    public void getChildGraphs(List<Graph> graphs, List<NodeType> nodeTypes) {
         var node = nextOpenNode();
         var index = nextOpenIndex(node);
 
@@ -68,7 +67,7 @@ public class Graph {
             return;
 
         addConnectionsToExistingNodes(node, index, graphs);
-        addConnectionsToNewNodes(node, index, graphs, env);
+        addConnectionsToNewNodes(node, index, graphs, nodeTypes);
     }
 
     private Node nextOpenNode() {
@@ -148,10 +147,10 @@ public class Graph {
         }
     }
 
-    private void addConnectionsToNewNodes(Node node, int index, List<Graph> graphs, Environment env) {
+    private void addConnectionsToNewNodes(Node node, int index, List<Graph> graphs, List<NodeType> nodeTypes) {
         var inputType = node.type().getInput(index);
 
-        for (var nodeType : env.getNodeTypes()) {
+        for (var nodeType : nodeTypes) {
             if (nodeType.isInputType() || nodeType.isOutputType())
                 continue;
 
